@@ -28,6 +28,9 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
             this.button1 = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
             this.button2 = new System.Windows.Forms.Button();
@@ -40,6 +43,8 @@
             this.newestResult = new System.Windows.Forms.Label();
             this.complexity = new System.Windows.Forms.Label();
             this.calculateButton = new System.Windows.Forms.Button();
+            this.benchmarkChart = new System.Windows.Forms.DataVisualization.Charting.Chart();
+            ((System.ComponentModel.ISupportInitialize)(this.benchmarkChart)).BeginInit();
             this.SuspendLayout();
             // 
             // button1
@@ -159,11 +164,28 @@
             this.calculateButton.UseVisualStyleBackColor = true;
             this.calculateButton.Click += new System.EventHandler(this.calculateButton_Click);
             // 
+            // benchmarkChart
+            // 
+            chartArea1.Name = "ChartArea1";
+            this.benchmarkChart.ChartAreas.Add(chartArea1);
+            legend1.Name = "Legend1";
+            this.benchmarkChart.Legends.Add(legend1);
+            this.benchmarkChart.Location = new System.Drawing.Point(12, 431);
+            this.benchmarkChart.Name = "benchmarkChart";
+            series1.ChartArea = "ChartArea1";
+            series1.Legend = "Legend1";
+            series1.Name = "Series1";
+            this.benchmarkChart.Series.Add(series1);
+            this.benchmarkChart.Size = new System.Drawing.Size(229, 279);
+            this.benchmarkChart.TabIndex = 12;
+            this.benchmarkChart.Text = "chart1";
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1342, 722);
+            this.Controls.Add(this.benchmarkChart);
             this.Controls.Add(this.calculateButton);
             this.Controls.Add(this.complexity);
             this.Controls.Add(this.newestResult);
@@ -178,6 +200,7 @@
             this.Controls.Add(this.button1);
             this.Name = "Form1";
             this.Text = "Form1";
+            ((System.ComponentModel.ISupportInitialize)(this.benchmarkChart)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -197,6 +220,7 @@
         private System.Windows.Forms.Label newestResult;
         private System.Windows.Forms.Label complexity;
         private System.Windows.Forms.Button calculateButton;
+        private System.Windows.Forms.DataVisualization.Charting.Chart benchmarkChart;
     }
 }
 

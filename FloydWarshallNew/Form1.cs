@@ -4,7 +4,9 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.IO;
+using System.Linq;
 using System.Windows.Forms;
+using System.Windows.Forms.DataVisualization.Charting;
 
 namespace FloydWarshallNew
 {
@@ -466,10 +468,57 @@ namespace FloydWarshallNew
                 complexity.Text = $"Złożoność obliczeniowa: {complexityName} lub {complexityNumber.ToString()}";
             }
 
+            GenerateChart(lastTests);
 
 
 
 
+
+        }
+
+        private void GenerateChart(List<LastTest> tests)
+        {
+            benchmarkChart.Series.Clear();
+            benchmarkChart.Legends.Clear();
+
+            var chartArea = benchmarkChart.ChartAreas[0];
+
+            chartArea.AxisX.CustomLabels.Clear();
+            chartArea.AxisX.LabelStyle.Enabled = true;
+            chartArea.AxisX.Interval = 1;
+            chartArea.AxisX.Minimum = 0.5;
+            chartArea.AxisX.Maximum = tests.Count + 0.5;
+
+            var series = benchmarkChart.Series.Add("Czas wykonania");
+
+            series.ChartType = SeriesChartType.Line;
+            series.BorderWidth = 2;
+            series.MarkerStyle = MarkerStyle.Circle;
+            series.IsXValueIndexed = true;
+
+            var sortedTests = tests.OrderBy(x => x.size).ToList();
+
+            for (int i = 0; i < sortedTests.Count; i++)
+            {
+                var test = sortedTests[i];
+
+                series.Points.AddXY(i + 1, test.timeTaken);
+
+                chartArea.AxisX.CustomLabels.Add(
+                    i + 0.5,
+                    i + 1.5,
+                    test.size.ToString()
+                );
+            }
+
+            chartArea.AxisX.LabelStyle.Interval = 1;
+            chartArea.AxisX.MajorGrid.Interval = 1;
+            chartArea.AxisX.MajorTickMark.Interval = 1;
+
+            chartArea.AxisX.Title = "Rozmiar danych";
+            chartArea.AxisY.Title = "Czas wykonania";
+
+            chartArea.AxisY.IsStartedFromZero = true;
         }
     }
 
