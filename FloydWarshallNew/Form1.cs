@@ -5,8 +5,10 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.IO;
 using System.Linq;
+using System.Runtime.Remoting.Metadata.W3cXsd2001;
 using System.Windows.Forms;
 using System.Windows.Forms.DataVisualization.Charting;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace FloydWarshallNew
 {
@@ -38,6 +40,9 @@ namespace FloydWarshallNew
         public Form1()
         {
             InitializeComponent();
+
+            graphDensity.Items.AddRange(new object[] { "Rzadki", "Średni", "Gęsty" });
+            graphDensity.SelectedIndex = 0;
 
 
             typeof(Panel).InvokeMember("DoubleBuffered",
@@ -113,32 +118,52 @@ namespace FloydWarshallNew
             graphPanel.Invalidate();
         }
 
+        private string FormDensityGet()
+        {
+            string density = graphDensity.SelectedItem.ToString();
+
+            if (density == "Rzadki")
+            {
+                return "graf_rzadki_";
+            }
+            else if (density == "Średni")
+            {
+                return "graf_sredni_";
+            }
+            else if (density == "Gęsty")
+            {
+                return "graf_gesty_";
+            }
+
+            return "graf_rzadki_";
+        }
+
         private void button1_Click(object sender, EventArgs e)
         {
-            BuildAndDrawGraph(2);
+            BuildAndDrawGraph(32, FormDensityGet() + "32.csv");
         }
 
         private void button2_Click(object sender, EventArgs e)
         {
-            BuildAndDrawGraph(4);
+            BuildAndDrawGraph(64, FormDensityGet() + "64.csv");
         }
 
         private void button3_Click(object sender, EventArgs e)
         {
-            BuildAndDrawGraph(8);
+            BuildAndDrawGraph(128, FormDensityGet() + "128.csv");
         }
 
         private void button4_Click(object sender, EventArgs e)
         {
-            BuildAndDrawGraph(16);
+            BuildAndDrawGraph(256, FormDensityGet() + "256.csv");
         }
 
         private void button5_Click(object sender, EventArgs e)
         {
-            BuildAndDrawGraph(32);
+            BuildAndDrawGraph(512, FormDensityGet() + "512.csv");
         }
 
-        private void BuildAndDrawGraph(int graphSize)
+        private void BuildAndDrawGraph(int graphSize, string csvFile)
         {
             currentGraph = BuildNewGraph(graphSize, false);
             currentGraph.size = graphSize;
@@ -146,7 +171,10 @@ namespace FloydWarshallNew
             loadTimeLabel.Text = "Ładowanie...";
             loadTimeLabel.Refresh();
 
-            List<(int, int, int)> allEdges = PrepareEdgesForPush("edges_1k.csv");
+            //List<(int, int, int)> allEdges = PrepareEdgesForPush("edges_1k.csv");
+            //List<(int, int, int)> allEdges = PrepareEdgesForPush("graf_rzadki_16.csv");
+            //List<(int, int, int)> allEdges = PrepareEdgesForPush("graf_sredni_16.csv");
+            List<(int, int, int)> allEdges = PrepareEdgesForPush(csvFile);
 
             List<(int, int, int)> edges = allEdges
                 .FindAll(edge => edge.Item1 < graphSize && edge.Item2 < graphSize);
@@ -304,6 +332,8 @@ namespace FloydWarshallNew
 
         private void graphPanel_Paint_1(object sender, PaintEventArgs e)
         {
+            e.Graphics.Clear(graphPanel.BackColor);
+
             if (currentGraph == null)
                 return;
 
@@ -436,6 +466,12 @@ namespace FloydWarshallNew
 
         private void calculateButton_Click(object sender, EventArgs e)
         {
+            if(currentGraph == null)
+            {
+                MessageBox.Show("Przed wywołaniem algorytmu należy załadować dane do grafu.");
+                return;
+            }
+
             int[,] matrix = currentGraph.toDistanceMatrix();
 
             double algorithmTime = BenchmarkTools.MeasureTime(() =>
@@ -469,10 +505,6 @@ namespace FloydWarshallNew
             }
 
             GenerateChart(lastTests);
-
-
-
-
 
         }
 
@@ -519,6 +551,17 @@ namespace FloydWarshallNew
             chartArea.AxisY.Title = "Czas wykonania";
 
             chartArea.AxisY.IsStartedFromZero = true;
+        }
+
+        private void clearChatButton_Click(object sender, EventArgs e)
+        {
+            currentGraph = null;
+
+            benchmarkChart.Series.Clear();
+            benchmarkChart.Legends.Clear();
+            lastTests.Clear();
+
+            graphPanel.Invalidate();
         }
     }
 
