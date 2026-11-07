@@ -37,6 +37,9 @@ namespace FloydWarshallNew
 
         List<LastTest> lastTests = new List<LastTest>();
 
+        private int[,] oryginalMatrix;
+        private int[,] resultMatrix;
+
         public Form1()
         {
             InitializeComponent();
@@ -473,10 +476,11 @@ namespace FloydWarshallNew
             }
 
             int[,] matrix = currentGraph.toDistanceMatrix();
+            oryginalMatrix = matrix;
 
             double algorithmTime = BenchmarkTools.MeasureTime(() =>
             {
-                FloydWarshall.FloydWarshallAlgorithm(matrix);
+                resultMatrix = FloydWarshall.FloydWarshallAlgorithm(matrix);
             });
 
             lastTests.Add(new LastTest(currentGraph.size, algorithmTime));
@@ -562,6 +566,90 @@ namespace FloydWarshallNew
             lastTests.Clear();
 
             graphPanel.Invalidate();
+        }
+
+        public static List<int> GetShortestPath(
+    int start,
+    int end,
+    int[,] originalGraph,
+    int[,] distances)
+        {
+            int n = distances.GetLength(0);
+
+            if (originalGraph.GetLength(0) != n ||
+                originalGraph.GetLength(1) != n ||
+                distances.GetLength(1) != n)
+            {
+                throw new ArgumentException("Macierze muszą mieć identyczne wymiary.");
+            }
+
+            if (start < 0 || start >= n || end < 0 || end >= n)
+                throw new ArgumentOutOfRangeException();
+
+            if (distances[start, end] == int.MaxValue)
+                return new List<int>();
+
+            if (start == end)
+                return new List<int> { start };
+
+            List<int> path = new List<int> { start };
+            HashSet<int> visited = new HashSet<int> { start };
+
+            int current = start;
+
+            while (current != end)
+            {
+                bool found = false;
+
+                for (int next = 0; next < n; next++)
+                {
+                    if (visited.Contains(next))
+                        continue;
+
+                    if (originalGraph[current, next] == int.MaxValue)
+                        continue;
+
+                    if (distances[next, end] == int.MaxValue)
+                        continue;
+
+                    long cost = (long)originalGraph[current, next]
+                                + distances[next, end];
+
+                    if (cost == distances[current, end])
+                    {
+                        current = next;
+                        path.Add(current);
+                        visited.Add(current);
+                        found = true;
+                        break;
+                    }
+                }
+
+                if (!found)
+                    return new List<int>();
+            }
+
+            return path;
+        }
+
+        private void findRoute_Click(object sender, EventArgs e)
+        {
+
+            int startEdge = int.Parse(startTextBox.Text);
+            int endEdge = int.Parse(endTextBox.Text);
+
+            List<int> pathWay = new List<int>();
+
+            pathWay = GetShortestPath(startEdge, endEdge, oryginalMatrix, resultMatrix);
+            string path = "";
+
+            foreach(var step in pathWay)
+            {
+                path += step + "->";
+            }
+
+            resultLabel.Text = path;
+
         }
     }
 
